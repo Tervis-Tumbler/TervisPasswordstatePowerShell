@@ -15,7 +15,7 @@ function Get-PasswordStateCredentialFromFile {
         [Parameter(Mandatory)]
         [string]$SecuredAPIkeyFilePath
     )
-    $APIKeyURI = Get-SecuredStringFromFile -InputFile $SecuredAPIkeyFilePath
+    $APIKeyURI = Get-SecureStringFile -InputFile $SecuredAPIkeyFilePath
     $PasswordstateCredentialObject = Invoke-RestMethod $APIKeyURI
     
     $PasswordstateCredentialObject
