@@ -1,4 +1,6 @@
 ﻿#Requires -Modules SecureStringFile
+#Requires -Modules TervisVirtualization
+
 function Get-PasswordStateCredentialFromFile {
     <#
     .SYNOPSIS
@@ -48,4 +50,24 @@ function New-PasswordStateCredentialToFile {
     $URLToPasswordstateCredential = "https://passwordstate/api/passwords/$PasswordID`?apikey=$APIKEY"
     $SecureString = ConvertTo-SecureString -String $URLToPasswordstateCredential -AsPlainText -Force
     New-SecureStringFile -OutputFile $DestinationSecureFile -SecureString $SecureString
+}
+
+function New-PasswordstateADSecurityGroup {
+    Param(
+        [Parameter(Mandatory)][ValidateSet(“Delta”,”Epsilon”,"Production")]$Environment,
+        [Parameter(Mandatory)]$PasswordstateFolderName,
+        [Parameter(Mandatory)][ValidateScript({ Test-ShouldBeAlphaNumeric $PasswordstateListName $_ })]$PasswordstateListName
+    )
+    $OUToCreateSecurityGroup = "OU=Passwordstate Privileges,OU=Company - Security Groups,DC=tervis,DC=prv"
+    
+    if($Environment -eq "Production"){
+        $EnvironmentName = "Prod"
+    }    
+    else{
+        $EnvironmentName = $Environment
+    }
+        $PasswordstateSecurityGroupName = "Privilege`_Passwordstate`_$EnvironmentName`_$PasswordstateFolderName`_$PasswordstateListName"
+        New-ADGroup -GroupCategory:'Security' -GroupScope:'Universal' -Name:$PasswordstateSecurityGroupName -Path:$OUToCreateSecurityGroup -SamAccountName:$PasswordstateSecurityGroupName
+    
+    $PasswordstateSecurityGroupName
 }
