@@ -54,9 +54,17 @@ function New-PasswordStateCredentialToFile {
 
 function New-PasswordstateADSecurityGroup {
     Param(
-        [Parameter(Mandatory)][ValidateSet(“Delta”,”Epsilon”,"Production")]$Environment,
-        [Parameter(Mandatory)]$PasswordstateFolderName,
-        [Parameter(Mandatory)][ValidateScript({ Test-ShouldBeAlphaNumeric $PasswordstateListName $_ })]$PasswordstateListName
+        [Parameter(Mandatory)]
+        [ValidateSet(“Delta”,”Epsilon”,"Production")]
+        $Environment,
+        
+        [Parameter(Mandatory)]
+        [ValidateScript({ Test-ShouldBeAlphaNumeric $PasswordstateListName $_ })]
+        $PasswordstateFolderName,
+        
+        [Parameter(Mandatory)]
+        [ValidateScript({ Test-ShouldBeAlphaNumeric $PasswordstateListName $_ })]
+        $PasswordstateListName
     )
     $OUToCreateSecurityGroup = "OU=Passwordstate Privileges,OU=Company - Security Groups,DC=tervis,DC=prv"
     
