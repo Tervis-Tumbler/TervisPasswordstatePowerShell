@@ -79,3 +79,123 @@ function New-PasswordstateADSecurityGroup {
     
     $PasswordstateSecurityGroupName
 }
+
+$TervisPasswordstateEnvironments = [pscustomobject][ordered]@{
+    Name="Delta"
+    FolderID = "58"
+    TemplatePasswordListID = "2"
+},
+[pscustomobject][ordered]@{
+    Name = "Epsilon"
+    FolderID = "56"
+    TemplatePasswordListID = "2"
+},
+[pscustomobject][ordered]@{
+    Name = "Production"
+    FolderID = "59"
+    TemplatePasswordListID = "2"
+}
+
+function Get-TervisPasswordstateEnvironments {
+    param(
+        [Parameter(Mandatory)][ValidateSet(“Delta”,”Epsilon”,"Production")][String]$EnvironmentName
+    )
+    $TervisPasswordstateEnvironmentSelection = $TervisPasswordstateEnvironments | Where name -EQ $EnvironmentName
+    $TervisPasswordstateEnvironmentSelection
+}
+
+function New-PasswordstateApplicationFolder{
+    param(
+        [Parameter(Mandatory)]
+        [ValidateSet(“Delta”,”Epsilon”,"Production")]
+        $PasswordstateEnvironment,
+
+        [Parameter(Mandatory)]
+        [string]
+        $FolderNameToCreate,
+        
+        [Parameter(Mandatory)]
+        [string]
+        $FolderDescription
+    )
+    $PasswordstateEnvironmentInformation = Get-TervisPasswordstateEnvironments -EnvironmentName $PasswordstateEnvironment
+
+    $SystemWideAPIKey = Get-SecureStringFile -InputFile "\\fs1\disasterrecovery\Source Controlled Items\SecuredCredential API Keys\PasswordstateSiteWideAPIKey.APIKEY"
+    
+    $CreatedPasswordstateApplicationFolder = New-PasswordstateFolder -ParentFolderIDtoNestUnder $PasswordstateEnvironmentInformation.FolderID -FolderNameToCreate $FolderNameToCreate -FolderDescription $FolderDescription -SystemWideAPIKey $SystemWideAPIKey
+    $CreatedPasswordstateApplicationFolder
+}
+
+Function New-PasswordstateApplicationList{
+    param(
+        [Parameter(Mandatory)]
+        [ValidateSet(“Delta”,”Epsilon”,"Production")]
+        $PasswordstateEnvironment,
+
+        [Parameter(Mandatory)]
+        [string]
+        $ApplicationListNametoCreate,
+        
+        [Parameter(Mandatory)]
+        [string]
+        $ApplicationListDescription,
+
+        [Parameter(Mandatory)]
+        $ParentFolderIDtoNestUnder
+    )
+    $PasswordstateEnvironmentInformation = Get-TervisPasswordstateEnvironments -EnvironmentName $PasswordstateEnvironment
+    $SystemWideAPIKey = Get-SecureStringFile -InputFile "\\fs1\disasterrecovery\Source Controlled Items\SecuredCredential API Keys\PasswordstateSiteWideAPIKey.APIKEY"
+    $CreatedPasswordstateApplicationList = New-PasswordstateSharedList -SharedListNametoCreate $ApplicationListNametoCreate -SharedListDescription $ApplicationListDescription -ParentFolderIDtoNestUnder $ParentFolderIDtoNestUnder -TemplatePasswordListID $PasswordstateEnvironmentInformation.TemplatePasswordListID -SystemWideAPIKey $SystemWideAPIKey
+    $CreatedPasswordstateApplicationList
+}
+
+
+function New-PasswordstateFolder {
+    param(
+        [Parameter(Mandatory)][string]$ParentFolderIDtoNestUnder,
+        [Parameter(Mandatory)][string]$FolderNameToCreate,
+        [Parameter(Mandatory)][string]$FolderDescription,
+        [Parameter(Mandatory)][string]$SystemWideAPIKey
+    )
+$jsontocreateFolder = @"
+{
+ "FolderName":"$FolderNameToCreate",
+ "Description":"$FolderDescription",
+ "CopyPermissionsFromPasswordListID":"",
+ "CopyPermissionsFromTemplateID":"",
+ "NestUnderFolderID":"$ParentFolderIDtoNestUnder",
+ "APIKey":"$SystemWideAPIKey"
+}
+"@
+    $result = Invoke-Restmethod -Method Post -Uri https://passwordstate/api/folders -ContentType "application/json" -Body $jsontocreateFolder
+    $CreatedFolderID = $result.FolderID
+    $CreatedFolderID
+}
+
+Function New-PasswordstateSharedList {
+    param(
+        [Parameter(Mandatory)][string]$SharedListNametoCreate,
+        [Parameter(Mandatory)][string]$SharedListDescription,
+        [Parameter(Mandatory)][string]$ParentFolderIDtoNestUnder,
+        [Parameter(Mandatory)][string]$TemplatePasswordListID,
+        [Parameter(Mandatory)][string]$SystemWideAPIKey
+    )
+    
+$jsontoCreatePasswordList = @"
+{
+"PasswordList":"$SharedListNametoCreate",
+"Description":"$SharedListDescription",
+"CopySettingsFromPasswordListID":"",
+"CopySettingsFromTemplateID":"$TemplatePasswordListID",
+"LinkToTemplate":false,
+"CopyPermissionsFromPasswordListID":"",
+"CopyPermissionsFromTemplateID":"$TemplatePasswordListID",
+"NestUnderFolderID":"$ParentFolderIDtoNestUnder",
+"APIKey":"$SystemWideAPIKey"
+}
+"@
+    $result = Invoke-Restmethod -Method Post -Uri https://passwordstate/api/passwordlists -ContentType "application/json" -Body $jsontoCreatePasswordList
+    $PasswordListID = $result.PasswordListID
+    $PasswordListID
+
+}
