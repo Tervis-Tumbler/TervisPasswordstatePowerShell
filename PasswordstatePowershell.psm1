@@ -47,25 +47,9 @@ function New-PasswordStateCredentialToFile {
         [string]$PasswordID
     )
     
-    $SecureString = Get-PasswordstateCredential -PasswordstateListAPIKey $APIKey -PasswordID $PasswordID
-    New-SecureStringFile -OutputFile $DestinationSecureFile -SecureString $SecureString
-}
-
-function Get-PasswordstateCredential {
-    param (
-        [Parameter(Mandatory)]
-        [string]$PasswordstateListAPIKey,
-        
-        [Parameter(Mandatory)]
-        [string]$PasswordID    
-    )
-
-    $URLToPasswordstateCredential = "https://passwordstate/api/passwords/$PasswordID`?apikey=$PasswordstateListAPIKey"
-    
+    $URLToPasswordstateCredential = "https://passwordstate/api/passwords/$PasswordID`?apikey=$APIKEY"
     $SecureString = ConvertTo-SecureString -String $URLToPasswordstateCredential -AsPlainText -Force
-
-    return $SecureString
-
+    New-SecureStringFile -OutputFile $DestinationSecureFile -SecureString $SecureString
 }
 
 function New-PasswordstateADSecurityGroup {
