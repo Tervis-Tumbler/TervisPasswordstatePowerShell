@@ -52,6 +52,27 @@ function New-PasswordStateCredentialToFile {
     New-SecureStringFile -OutputFile $DestinationSecureFile -SecureString $SecureString
 }
 
+function Get-PasswordstateCredential {
+    param (
+        [Parameter(Mandatory)]
+        [string]$PasswordstateListAPIKey,
+
+        [Parameter(Mandatory)]
+        [string]$PasswordID
+    )
+
+    $URLToPasswordstateCredential = "https://passwordstate/api/passwords/$PasswordID`?apikey=$PasswordstateListAPIKey"
+
+    $PasswordstateCredentials = Invoke-RestMethod $URLToPasswordstateCredential
+
+    $PasswordstateCredentialsPassword = ConvertTo-SecureString $PasswordstateCredentials.Password -AsPlainText -Force
+
+    $PasswordstateCredentialObject = New-Object System.Management.Automation.PSCredential ($PasswordstateCredentials.UserName, $PasswordstateCredentialsPassword)
+
+    return $PasswordstateCredentialObject
+
+}
+
 function New-PasswordstateADSecurityGroup {
     Param(
         [Parameter(Mandatory)]
