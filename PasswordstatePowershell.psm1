@@ -1,6 +1,6 @@
 ﻿#Requires -Modules SecureStringFile, TervisVirtualization
 
-Function Install-PasswordSatePowerShell {
+Function Install-PasswordStatePowerShell {
     Set-PasswordStateAPIKey
 }
 
@@ -15,15 +15,15 @@ Function Get-PasswordStateAPIKeyPath {
     if ($env:PasswordStatePowerShellPasswordStateAPIKeyPath) {
         $env:PasswordStatePowerShellPasswordStateAPIKeyPath
     } else {
-        "\\fs1\disasterrecovery\Source Controlled Items\SecuredCredential API Keys\PasswordstateSiteWideAPIKey.APIKEY"
+        Throw "Set-PasswordStateAPIKey has not been run yet or PowerShell needs to be closed and reopened to see that the `$env:PasswordStatePowerShellPasswordStateAPIKeyPath has a value"
     }
 }
 
 Function Set-PasswordStateAPIKey {
     param (
         [Parameter(Mandatory)]$PasswordStateAPIKey
-    )
-    $PasswordStateAPIKey | New-SecureStringFile -OutputFile $env:USERPROFILE\PasswordState.APIKey
+    )    
+    New-SecureStringFile -OutputFile $env:USERPROFILE\PasswordState.APIKey -SecureString $($PasswordStateAPIKey | ConvertTo-SecureString -AsPlainText -Force)
     Set-PasswordStateAPIKeyPath -PasswordStateAPIKeyPath $env:USERPROFILE\PasswordState.APIKey
 }
 
@@ -84,7 +84,6 @@ function New-PasswordStateCredentialToFile {
 
 function Get-PasswordstateCredential {
     param (
-        [Parameter(Mandatory)]
         [string]$PasswordstateListAPIKey = $(Get-PasswordStateAPIKey),
 
         [Parameter(Mandatory)]
