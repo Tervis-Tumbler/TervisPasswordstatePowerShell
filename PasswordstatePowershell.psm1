@@ -82,6 +82,15 @@ function New-PasswordStateCredentialToFile {
     New-SecureStringFile -OutputFile $DestinationSecureFile -SecureString $SecureString
 }
 
+Function Get-PasswordstateEntryDetails {
+    param (
+        [Parameter(Mandatory)][string]$PasswordID,
+        [string]$PasswordstateListAPIKey = $(Get-PasswordStateAPIKey)
+    )
+    $URLToPasswordstateCredential = "https://passwordstate/api/passwords/$PasswordID`?apikey=$PasswordstateListAPIKey"
+    Invoke-RestMethod $URLToPasswordstateCredential
+}
+
 function Get-PasswordstateCredential {
     param (
         [string]$PasswordstateListAPIKey = $(Get-PasswordStateAPIKey),
