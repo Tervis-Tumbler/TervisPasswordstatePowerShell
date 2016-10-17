@@ -85,21 +85,25 @@ function New-PasswordStateCredentialToFile {
 function Get-PasswordstateCredential {
     param (
         [string]$PasswordstateListAPIKey = $(Get-PasswordStateAPIKey),
-
-        [Parameter(Mandatory)]
-        [string]$PasswordID
+        [Parameter(Mandatory)][string]$PasswordID,
+        [switch] $AsPlainText
     )
 
     $URLToPasswordstateCredential = "https://passwordstate/api/passwords/$PasswordID`?apikey=$PasswordstateListAPIKey"
-
     $PasswordstateCredentials = Invoke-RestMethod $URLToPasswordstateCredential
 
+    if ($AsPlainText){
+        $PasswordstateCredentialObject = [pscustomobject][ordered]@{
+            Username = $PasswordstateCredentials.Username
+            Password = $PasswordstateCredentials.Password
+            }
+    }
+    else {
     $PasswordstateCredentialsPassword = ConvertTo-SecureString $PasswordstateCredentials.Password -AsPlainText -Force
-
     $PasswordstateCredentialObject = New-Object System.Management.Automation.PSCredential ($PasswordstateCredentials.UserName, $PasswordstateCredentialsPassword)
+    }
 
     return $PasswordstateCredentialObject
-
 }
 
 function New-PasswordstateADSecurityGroup {
