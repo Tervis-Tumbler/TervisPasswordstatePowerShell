@@ -1,4 +1,4 @@
-﻿#Requires -Modules SecureStringFile, TervisVirtualization
+﻿#Requires -Modules SecureStringFile
 
 Function Install-PasswordStatePowerShell {
     Set-PasswordStateAPIKey
