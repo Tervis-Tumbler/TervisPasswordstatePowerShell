@@ -20,6 +20,7 @@ Function Get-PasswordStateAPIKeyPath {
 }
 
 Function Set-PasswordStateAPIKey {
+    [CmdletBinding()]
     param (
         [Parameter(Mandatory)]$PasswordStateAPIKey
     )    
@@ -28,6 +29,8 @@ Function Set-PasswordStateAPIKey {
 }
 
 Function Get-PasswordStateAPIKey {
+    [CmdletBinding()]
+    param ()
     Get-SecureStringFile -InputFile $(Get-PasswordStateAPIKeyPath)
 }
 
