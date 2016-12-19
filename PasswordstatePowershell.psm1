@@ -117,3 +117,24 @@ function Get-PasswordstateCredential {
     return $PasswordstateCredentialObject
 }
 
+function New-PasswordstateEntry {
+    param(
+        [Parameter(Mandatory)][string]$PasswordListID,
+        [Parameter(Mandatory)][string]$Username,
+        [Parameter(Mandatory)][string]$Title,
+        [string]$PasswordstateListAPIKey = $(Get-PasswordStateAPIKey)
+    )
+
+    $jsonString = @"
+    {
+        "PasswordListID":"$PasswordListID",
+        "Title":"$Title",
+        "UserName":"$Username",
+        "APIKey":"$PasswordstateListAPIKey",
+        "GeneratePassword":"true"
+    }
+"@
+    Invoke-Restmethod -Method Post -Uri https://passwordstate/api/passwords/ -ContentType "application/json" -Body $jsonString -Verbose
+
+
+}
