@@ -1,7 +1,9 @@
 ﻿#Requires -Modules SecureStringFile
 
 Function Install-PasswordStatePowerShell {
-    Set-PasswordStateAPIKey
+    if(-not (Get-PasswordStateAPIKey) ) {
+        Set-PasswordStateAPIKey
+    }
 }
 
 Function Set-PasswordStateAPIKeyPath {
