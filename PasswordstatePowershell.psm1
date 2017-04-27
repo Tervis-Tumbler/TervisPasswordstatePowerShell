@@ -140,3 +140,12 @@ function New-PasswordstateEntry {
 
 
 }
+
+Function Get-PasswordstateDocument {
+    param (
+        [Parameter(Mandatory)][string]$DocumentID,
+        [string]$PasswordstateListAPIKey = $(Get-PasswordStateAPIKey)
+    )
+    $URLToPasswordstateCredential = "https://passwordstate/api/document/password/$DocumentID`?apikey=$PasswordstateListAPIKey"
+    Invoke-RestMethod $URLToPasswordstateCredential
+}
