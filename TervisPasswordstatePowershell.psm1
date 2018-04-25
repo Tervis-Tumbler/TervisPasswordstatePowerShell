@@ -33,7 +33,11 @@ Function Set-PasswordStateAPIKey {
 Function Get-PasswordStateAPIKey {
     [CmdletBinding()]
     param ()
-    Get-SecureStringFile -InputFile $(Get-PasswordStateAPIKeyPath)
+    if ($env:PasswordStatePowerShellPasswordStateAPIKey) {
+        $env:PasswordStatePowerShellPasswordStateAPIKey
+    } else {
+        Get-SecureStringFile -InputFile $(Get-PasswordStateAPIKeyPath)
+    }
 }
 
 function Get-PasswordStateCredentialFromFile {
@@ -92,7 +96,7 @@ Function Get-PasswordstateEntryDetails {
         [string]$PasswordstateListAPIKey = $(Get-PasswordStateAPIKey)
     )
     $URLToPasswordstateCredential = "https://passwordstate/api/passwords/$PasswordID`?apikey=$PasswordstateListAPIKey"
-    Invoke-RestMethod $URLToPasswordstateCredential
+    Invoke-RestMethod $URLToPasswordstateCredential -SkipCertificateCheck
 }
 
 function Get-PasswordstateCredential {
@@ -103,7 +107,7 @@ function Get-PasswordstateCredential {
     )
 
     $URLToPasswordstateCredential = "https://passwordstate/api/passwords/$PasswordID`?apikey=$PasswordstateListAPIKey"
-    $PasswordstateCredentials = Invoke-RestMethod $URLToPasswordstateCredential
+    $PasswordstateCredentials = Invoke-RestMethod $URLToPasswordstateCredential -SkipCertificateCheck
 
     if ($AsPlainText){
         $PasswordstateCredentialObject = [pscustomobject][ordered]@{
