@@ -96,7 +96,8 @@ Function Get-PasswordstateEntryDetails {
         [string]$PasswordstateListAPIKey = $(Get-PasswordStateAPIKey)
     )
     $URLToPasswordstateCredential = "https://passwordstate/api/passwords/$PasswordID`?apikey=$PasswordstateListAPIKey"
-    Invoke-RestMethod $URLToPasswordstateCredential -SkipCertificateCheck
+    $CoreParameters = if ($PSVersionTable.PSEdition -ne "Core") {@{}} else {@{SkipCertificateCheck = $true}}
+    Invoke-RestMethod $URLToPasswordstateCredential @CoreParameters
 }
 
 function Get-PasswordstateCredential {
@@ -107,7 +108,8 @@ function Get-PasswordstateCredential {
     )
 
     $URLToPasswordstateCredential = "https://passwordstate/api/passwords/$PasswordID`?apikey=$PasswordstateListAPIKey"
-    $PasswordstateCredentials = Invoke-RestMethod $URLToPasswordstateCredential -SkipCertificateCheck
+    $CoreParameters = if ($PSVersionTable.PSEdition -ne "Core") {@{}} else {@{SkipCertificateCheck = $true}}
+    $PasswordstateCredentials = Invoke-RestMethod $URLToPasswordstateCredential @CoreParameters
 
     if ($AsPlainText){
         $PasswordstateCredentialObject = [pscustomobject][ordered]@{
