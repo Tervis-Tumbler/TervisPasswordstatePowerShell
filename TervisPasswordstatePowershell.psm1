@@ -156,6 +156,19 @@ Function Get-PasswordstateDocument {
     $URLToPasswordstateCredential = "https://passwordstate/api/document/password/$DocumentID`?apikey=$PasswordstateListAPIKey"
     Invoke-RestMethod $URLToPasswordstateCredential -OutFile $FilePath
 }
+
+function Invoke-PasswordstateProvision {
+    param (
+        $EnvironmentName
+    )
+    $ApplicationName = "Passwordstate"
+    Invoke-ApplicationProvision -ApplicationName $ApplicationName -EnvironmentName $EnvironmentName
+    $Nodes = Get-TervisApplicationNode -ApplicationName $ApplicationName -EnvironmentName $EnvironmentName
+    $Nodes | Update-TervisSNMPConfiguration
+    Get-ADGroup Privilege_InfrastructurePasswordstateAdministrator | Add-ADGroupMember -Members Scheduledtasks
+    $Nodes | Install-PasswordstateServicerestartScheduledTask
+}
+
 function Install-PasswordstateServicerestartScheduledTask {
     [CmdletBinding()]
     param (
