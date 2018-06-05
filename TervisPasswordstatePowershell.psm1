@@ -101,18 +101,31 @@ function Install-PasswordstateServicerestartScheduledTask {
 
 function New-TervisPasswordStateApplicationPassword {
     param (
-        [ValidateSet("LocalAdministrator")]$Type,
-        $ApplicationName,
-        $EnvironmentName
+        [Parameter(Mandatory)][ValidateSet("LocalAdministrator")]$Type,
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$ApplicationName,
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$EnvironmentName
     )
     if ($Type -eq "LocalAdministrator") {
-        $PasswordTitle = "$ApplicationName Application Node Local Administrator"
-        $PasswordList = Find-PasswordstateList -PasswordList "Windows Server Applications Administrator"        
-        $Password = Find-PasswordstatePassword -PasswordListID $PasswordList.PasswordListID -Title $PasswordTitle -ErrorAction SilentlyContinue
+        $PasswordTitle = "$ApplicationName Application Node Local Administrator $EnvironmentName"
+        $Password = Find-PasswordstatePassword -Title $PasswordTitle -ErrorAction SilentlyContinue
         if (-not $Password) {
-            New-PasswordstatePassword -GeneratePassword $true -PasswordListID $PasswordList.PasswordListID -Title "$ApplicationName Application Node Local Administrator $EnvironmentName" -UserName ".\administrator"
+            $PasswordList = Find-PasswordstateList -PasswordList "Windows Server Applications Administrator"
+            New-PasswordstatePassword -GeneratePassword $true -PasswordListID $PasswordList.PasswordListID -Title $PasswordTitle -UserName ".\administrator"
         } else {
             $Password
         }
+    }
+}
+
+function Get-TervisPasswordStateApplicationPassword {
+    param (
+        [Parameter(Mandatory)][ValidateSet("LocalAdministrator")]$Type,
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$ApplicationName,
+        [Parameter(Mandatory,ValueFromPipelineByPropertyName)]$EnvironmentName,
+        [Switch]$AsCredential
+    )
+    if ($Type -eq "LocalAdministrator") {
+        $PasswordTitle = "$ApplicationName Application Node Local Administrator"
+        $Password = Find-PasswordstatePassword -Title $PasswordTitle -ErrorAction SilentlyContinue -AsCredential:$AsCredential
     }
 }
