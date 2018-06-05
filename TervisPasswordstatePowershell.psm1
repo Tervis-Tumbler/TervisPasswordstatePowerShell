@@ -18,56 +18,6 @@ Function Get-PasswordStateAPIKey {
     }
 }
 
-function Get-PasswordStateCredentialFromFile {
-    <#
-    .SYNOPSIS
-     Uses Passwordstate APIKey stored securely using New-SecuredStringToFile and Get-SecuredStringFromFile to output stored credentials from Passwordstate.
-    .DESCRIPTION
-     
-    .EXAMPLE
-    Get-PasswordstateCredentialFromFile
-    .PARAMETER InputFile
-    Fully qualified path to input file
-    #>
-    
-    param(
-        [Parameter(Mandatory)]
-        [string]$SecuredAPIkeyFilePath
-    )
-    $APIKeyURI = Get-SecureStringFile -InputFile $SecuredAPIkeyFilePath
-    $PasswordstateCredentialObject = Invoke-RestMethod $APIKeyURI
-    
-    $PasswordstateCredentialObject
-}
-
-function New-PasswordStateCredentialToFile {
-    <#
-    .SYNOPSIS
-     Secure stores Passwordstate APIKey and password using New-SecureStringFile and Get-SecureStringFile to be used in scripts.
-    .DESCRIPTION
-     
-    .EXAMPLE
-    Set-PasswordstateCredentialToFile
-    .PARAMETER APIKey
-    APIKey for Password list
-    .PARAMETER PasswordID
-    PasswordID for credential within Passwordstate
-    #>
-    
-    param(
-        [Parameter(Mandatory)]
-        [string]$DestinationSecureFile,
-        [Parameter(Mandatory)]
-        [string]$APIKey,
-        [Parameter(Mandatory)]
-        [string]$PasswordID
-    )
-    
-    $URLToPasswordstateCredential = "https://passwordstate/api/passwords/$PasswordID`?apikey=$APIKEY"
-    $SecureString = ConvertTo-SecureString -String $URLToPasswordstateCredential -AsPlainText -Force
-    New-SecureStringFile -OutputFile $DestinationSecureFile -SecureString $SecureString
-}
-
 Function Get-PasswordstateEntryDetails {
     param (
         [Parameter(Mandatory)][string]$PasswordID,
@@ -101,28 +51,6 @@ function Get-PasswordstateCredential {
     }
 
     return $PasswordstateCredentialObject
-}
-
-function New-PasswordstateEntry {
-    param(
-        [Parameter(Mandatory)][string]$PasswordListID,
-        [Parameter(Mandatory)][string]$Username,
-        [Parameter(Mandatory)][string]$Title,
-        [string]$PasswordstateListAPIKey = $(Get-PasswordStateAPIKey)
-    )
-
-    $jsonString = @"
-    {
-        "PasswordListID":"$PasswordListID",
-        "Title":"$Title",
-        "UserName":"$Username",
-        "APIKey":"$PasswordstateListAPIKey",
-        "GeneratePassword":"true"
-    }
-"@
-    Invoke-Restmethod -Method Post -Uri https://passwordstate/api/passwords/ -ContentType "application/json" -Body $jsonString -Verbose
-
-
 }
 
 Function Get-PasswordstateDocument {
