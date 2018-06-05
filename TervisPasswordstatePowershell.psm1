@@ -1,11 +1,5 @@
 ﻿#Requires -Modules SecureStringFile
 
-Function Install-PasswordStatePowerShell {
-    if(-not (Get-PasswordStateAPIKey) ) {
-        Set-PasswordStateAPIKey
-    }
-}
-
 Function Set-PasswordStateAPIKeyPath {
     Param (
         [Parameter(Mandatory)]$PasswordStateAPIKeyPath
@@ -190,5 +184,23 @@ function Install-PasswordstateServicerestartScheduledTask {
 #        If (-NOT (Get-ScheduledTask -TaskName PushExplorerFavorites -CimSession $CimSession -ErrorAction SilentlyContinue)) {
 #            Install-TervisScheduledTask -Credential $ScheduledTaskCredential -TaskName PushExplorerFavorites -Execute $Execute -Argument $Argument -RepetitionIntervalName EverWorkdayDuringTheDayEvery15Minutes -ComputerName $ComputerName
 #        }
+    }
+}
+
+function New-TervisPasswordStateApplicationPassword {
+    param (
+        [ValidateSet("LocalAdministrator")]$Type,
+        $ApplicationName,
+        $EnvironmentName
+    )
+    if ($Type -eq "LocalAdministrator") {
+        $PasswordTitle = "$ApplicationName Application Node Local Administrator"
+        $PasswordList = Find-PasswordstateList -PasswordList "Windows Server Applications Administrator"        
+        $Password = Find-PasswordstatePassword -PasswordListID $PasswordList.PasswordListID -Title $PasswordTitle -ErrorAction SilentlyContinue
+        if (-not $Password) {
+            New-PasswordstatePassword -GeneratePassword $true -PasswordListID $PasswordList.PasswordListID -Title "$ApplicationName Application Node Local Administrator $EnvironmentName" -UserName ".\administrator"
+        } else {
+            $Password
+        }
     }
 }
