@@ -1,27 +1,11 @@
 ﻿#Requires -Modules SecureStringFile
 
-Function Set-PasswordStateAPIKeyPath {
-    Param (
-        [Parameter(Mandatory)]$PasswordStateAPIKeyPath
-    )
-    [Environment]::SetEnvironmentVariable( "PasswordStatePowerShellPasswordStateAPIKeyPath", $PasswordStateAPIKeyPath, "User" )
-}
-
 Function Get-PasswordStateAPIKeyPath {
     if ($env:PasswordStatePowerShellPasswordStateAPIKeyPath) {
         $env:PasswordStatePowerShellPasswordStateAPIKeyPath
     } else {
         Throw "Set-PasswordStateAPIKey has not been run yet or PowerShell needs to be closed and reopened to see that the `$env:PasswordStatePowerShellPasswordStateAPIKeyPath has a value"
     }
-}
-
-Function Set-PasswordStateAPIKey {
-    [CmdletBinding()]
-    param (
-        [Parameter(Mandatory)]$PasswordStateAPIKey
-    )    
-    New-SecureStringFile -OutputFile $env:USERPROFILE\PasswordState.APIKey -SecureString $($PasswordStateAPIKey | ConvertTo-SecureString -AsPlainText -Force)
-    Set-PasswordStateAPIKeyPath -PasswordStateAPIKeyPath $env:USERPROFILE\PasswordState.APIKey
 }
 
 Function Get-PasswordStateAPIKey {
