@@ -139,6 +139,7 @@ function Get-TervisPasswordStateApplicationPassword {
     )
     process {
         if ($Type -eq "LocalAdministrator") {
+            $PSBoundParameters.Remove("AsCredential") | Out-Null
             $PasswordTitle = Get-TervisPasswordStateApplicationPasswordTitle @PSBoundParameters
             Find-PasswordstatePassword -Title $PasswordTitle -ErrorAction SilentlyContinue -AsCredential:$AsCredential
         }    
