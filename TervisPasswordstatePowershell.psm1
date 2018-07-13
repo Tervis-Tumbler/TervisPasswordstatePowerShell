@@ -18,17 +18,6 @@ Function Get-PasswordStateAPIKey {
     }
 }
 
-
-Function Get-PasswordstateDocument {
-    param (
-        [Parameter(Mandatory)][string]$DocumentID,
-        [Parameter(Mandatory)][string]$FilePath,
-        [string]$PasswordstateListAPIKey = $(Get-PasswordStateAPIKey)
-    )
-    $URLToPasswordstateCredential = "https://passwordstate/api/document/password/$DocumentID`?apikey=$PasswordstateListAPIKey"
-    Invoke-RestMethod $URLToPasswordstateCredential -OutFile $FilePath
-}
-
 function Invoke-PasswordstateProvision {
     param (
         $EnvironmentName
