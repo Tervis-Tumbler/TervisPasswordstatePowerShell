@@ -18,30 +18,6 @@ Function Get-PasswordStateAPIKey {
     }
 }
 
-function Get-PasswordstateCredential {
-    param (
-        [string]$PasswordstateListAPIKey = $(Get-PasswordStateAPIKey),
-        [Parameter(Mandatory)][string]$PasswordID,
-        [switch] $AsPlainText
-    )
-
-    $URLToPasswordstateCredential = "https://passwordstate/api/passwords/$PasswordID`?apikey=$PasswordstateListAPIKey"
-    $CoreParameters = if ($PSVersionTable.PSEdition -ne "Core") {@{}} else {@{SkipCertificateCheck = $true}}
-    $PasswordstateCredentials = Invoke-RestMethod $URLToPasswordstateCredential @CoreParameters
-
-    if ($AsPlainText){
-        $PasswordstateCredentialObject = [pscustomobject][ordered]@{
-            Username = $PasswordstateCredentials.Username
-            Password = $PasswordstateCredentials.Password
-            }
-    }
-    else {
-    $PasswordstateCredentialsPassword = ConvertTo-SecureString $PasswordstateCredentials.Password -AsPlainText -Force
-    $PasswordstateCredentialObject = New-Object System.Management.Automation.PSCredential ($PasswordstateCredentials.UserName, $PasswordstateCredentialsPassword)
-    }
-
-    return $PasswordstateCredentialObject
-}
 
 Function Get-PasswordstateDocument {
     param (
