@@ -18,16 +18,6 @@ Function Get-PasswordStateAPIKey {
     }
 }
 
-Function Get-PasswordstateEntryDetails {
-    param (
-        [Parameter(Mandatory)][string]$PasswordID,
-        [string]$PasswordstateListAPIKey = $(Get-PasswordStateAPIKey)
-    )
-    $URLToPasswordstateCredential = "https://passwordstate/api/passwords/$PasswordID`?apikey=$PasswordstateListAPIKey"
-    $CoreParameters = if ($PSVersionTable.PSEdition -ne "Core") {@{}} else {@{SkipCertificateCheck = $true}}
-    Invoke-RestMethod $URLToPasswordstateCredential @CoreParameters
-}
-
 function Get-PasswordstateCredential {
     param (
         [string]$PasswordstateListAPIKey = $(Get-PasswordStateAPIKey),
