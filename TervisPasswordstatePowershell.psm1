@@ -81,7 +81,6 @@ function New-TervisPasswordstatePasswordGUID {
     $ExistingGUid = Get-PasswordstatePassword -ID $PasswordID | Select-Object -ExpandProperty GenericField10
     if ($ExistingGUid) { Throw "GUID already set for $PasswordID"}
     Set-PasswordstatePassword -PasswordID $PasswordID -GenericField10 $Guid
-    $Guid
 }
 
 function Get-PasswordstateOracleDatabaseEntryDetails {
