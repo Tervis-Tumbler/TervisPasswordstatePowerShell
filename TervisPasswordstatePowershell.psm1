@@ -1,4 +1,90 @@
-﻿function Get-PasswordstateOracleDatabaseEntryDetails {
+﻿$TervisPasswordstateCustomProperties = [PSCustomObject]@{
+    Name = "OracleDatabase"
+    PropertyMap = @{    
+        Host = "GenericField1"
+        Port = "GenericField2"
+        Service_Name = "GenericField3"
+    }
+},
+[PSCustomObject]@{
+    Name = "SybaseDatabase"
+    PropertyMap = @{    
+        Host = "GenericField1"
+        Port = "GenericField2"
+        ServerName = "GenericField3"
+        DatabaseName = "GenericField4"        
+    }
+},
+[PSCustomObject]@{
+    Name = "MSSQLDatabase"
+    PropertyMap = @{    
+        Server = "GenericField1"
+        Port = "GenericField2"
+        Database = "GenericField4"
+    }
+    ForEachProcessScriptBlock = {
+        $_ | Add-Member -MemberType ScriptProperty -Name Credential -Value {
+            New-Crednetial -Username $This.UserName -Password $This.Password
+        }
+    }
+}
+
+function Get-TervisPasswordstateCustomProperties {
+    param (
+        $Name
+    )
+    $TervisPasswordstateCustomProperties |
+    Where-Object {-not $Name -or $_.Name -eq $Name}
+}
+
+function Get-TervisPasswordstatePassword {
+    param (
+        $Guid,
+        [ValidateScript({
+            $_ -in (Get-TervisPasswordstateCustomProperties | Select-Object -ExpandProperty Name)
+        })]
+        [Parameter(ParameterSetName = "PropertyMapName")]$PropertyMapName,
+        [Parameter(ParameterSetName = "NonPropertyMapName")][Switch]$AsCredential
+    )
+    $Password = if ($Guid) {
+        Find-PasswordstatePassword -GenericField10 $Guid -AsCredential:$AsCredential |
+        Select-Object -First 1    
+    }
+
+    if ($PropertyMapName) {
+        $Password | Add-TervisPasswordStateCustomProperty -PropertyMapName $PropertyMapName
+    }
+    
+    $Password
+}
+
+function Add-TervisPasswordStateCustomProperty {
+    param (
+        [Parameter(Mandatory,ValueFromPipeline)]$Password,
+        $PropertyMapName
+    )
+    process {
+        $TervisPasswordstateCustomProperty = Get-TervisPasswordstateCustomProperties -Name $PropertyMapName
+        $TervisPasswordstateCustomProperty.PropertyMap.GetEnumerator() |
+        ForEach-Object {
+            $Password | Add-Member -MemberType AliasProperty -Name $_.Name -Value $_.Value
+        }
+        $Password | ForEach-Object -Process $TervisPasswordstateCustomProperty.ForEachProcessScriptBlock    
+    }
+}
+
+function New-TervisPasswordstatePasswordGUID {
+    param (
+        $PasswordID
+    )
+    $Guid = New-Guid | Select-Object -ExpandProperty GUID
+    $ExistingGUid = Get-PasswordstatePassword -ID $PasswordID | Select-Object -ExpandProperty GenericField10
+    if ($ExistingGUid) { Throw "GUID already set for $PasswordID"}
+    Set-PasswordstatePassword -PasswordID $PasswordID -GenericField10 $Guid
+    $Guid
+}
+
+function Get-PasswordstateOracleDatabaseEntryDetails {
     param (
         [Parameter(Mandatory)][Alias("PasswordID")]$ID
     )
