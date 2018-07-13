@@ -1,24 +1,4 @@
-﻿#Requires -Modules SecureStringFile
-
-Function Get-PasswordStateAPIKeyPath {
-    if ($env:PasswordStatePowerShellPasswordStateAPIKeyPath) {
-        $env:PasswordStatePowerShellPasswordStateAPIKeyPath
-    } else {
-        Throw "Set-PasswordStateAPIKey has not been run yet or PowerShell needs to be closed and reopened to see that the `$env:PasswordStatePowerShellPasswordStateAPIKeyPath has a value"
-    }
-}
-
-Function Get-PasswordStateAPIKey {
-    [CmdletBinding()]
-    param ()
-    if ($env:PasswordStatePowerShellPasswordStateAPIKey) {
-        $env:PasswordStatePowerShellPasswordStateAPIKey
-    } else {
-        Get-SecureStringFile -InputFile $(Get-PasswordStateAPIKeyPath)
-    }
-}
-
-function Invoke-PasswordstateProvision {
+﻿function Invoke-PasswordstateProvision {
     param (
         $EnvironmentName
     )
