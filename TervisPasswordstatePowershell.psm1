@@ -38,8 +38,10 @@ function Get-TervisPasswordstateCustomProperties {
 }
 
 function Get-TervisPasswordstatePassword {
+    [CmdletBinding(DefaultParameterSetName="NonPropertyMapName")]
     param (
         $Guid,
+
         [ValidateScript({
             $_ -in (Get-TervisPasswordstateCustomProperties | Select-Object -ExpandProperty Name)
         })]
