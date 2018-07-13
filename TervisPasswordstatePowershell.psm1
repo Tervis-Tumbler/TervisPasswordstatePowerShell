@@ -1,4 +1,72 @@
-﻿function Invoke-PasswordstateProvision {
+﻿function Get-PasswordstateOracleDatabaseEntryDetails {
+    param (
+        [Parameter(Mandatory)][Alias("PasswordID")]$ID
+    )
+    $PasswordstateEntryDetails = Get-PasswordstatePassword -ID $ID
+    
+    $PasswordstateEntryDetails |
+    Add-Member -MemberType AliasProperty -Name Host -Value GenericField1 -PassThru |
+    Add-Member -MemberType AliasProperty -Name Port -Value GenericField2 -PassThru |
+    Add-Member -MemberType AliasProperty -Name Service_Name -Value GenericField3 -PassThru |
+    Select UserName, Password, Host, Port, Service_Name
+}
+
+function Get-PasswordstateOracleDatabasePassword {
+    param (
+        [Parameter(Mandatory)]$ID
+    )
+    $Password = Get-PasswordstatePassword -ID $ID
+    
+    $Password |
+    Add-Member -MemberType AliasProperty -Name Host -Value GenericField1 -PassThru |
+    Add-Member -MemberType AliasProperty -Name Port -Value GenericField2 -PassThru |
+    Add-Member -MemberType AliasProperty -Name Service_Name -Value GenericField3 -PassThru |
+    Select UserName, Password, Host, Port, Service_Name
+}
+
+function Get-PasswordstateSybaseDatabaseEntryDetails {
+    param (
+        [Parameter(Mandatory)][Alias("PasswordID")]$ID
+    )
+    $PasswordstateEntryDetails = Get-PasswordstatePassword -ID $ID
+    
+    $PasswordstateEntryDetails |
+    Add-Member -MemberType AliasProperty -Name Host -Value GenericField1 -PassThru |
+    Add-Member -MemberType AliasProperty -Name Port -Value GenericField2 -PassThru |
+    Add-Member -MemberType AliasProperty -Name ServerName -Value GenericField3 -PassThru |
+    Add-Member -MemberType AliasProperty -Name DatabaseName -Value GenericField4 -PassThru |
+    Select UserName, Password, Host, Port, ServerName, DatabaseName
+}
+
+
+function Get-PasswordstateMSSQLDatabaseEntryDetails {
+    param (
+        [Parameter(Mandatory)][Alias("PasswordID")]$ID
+    )
+    $PasswordstateEntryDetails = Get-PasswordstatePassword -ID $ID
+    
+    $PasswordstateEntryDetails |
+    Add-Member -MemberType AliasProperty -Name Server -Value GenericField1 -PassThru |
+    Add-Member -MemberType AliasProperty -Name Port -Value GenericField2 -PassThru |
+    Add-Member -MemberType AliasProperty -Name Database -Value GenericField4 -PassThru |
+    Add-Member -MemberType ScriptProperty -Name Credential -Value {
+        New-Crednetial -Username $This.UserName -Password $This.Password
+    } -PassThru |
+    Select UserName, Password, Server, Port, Database, Credential
+}
+
+function Get-PasswordstateDirectAccessDetails {
+    param (
+        [Parameter(Mandatory)][Alias("PasswordID")]$ID
+    )
+    $PasswordstateEntryDetails = Get-PasswordstatePassword -ID $ID
+    
+    $PasswordstateEntryDetails |
+    Add-Member -MemberType AliasProperty -Name NrptExclusionList -Value GenericField1 -PassThru |
+    Select NrptExclusionList
+}
+
+function Invoke-PasswordstateProvision {
     param (
         $EnvironmentName
     )
