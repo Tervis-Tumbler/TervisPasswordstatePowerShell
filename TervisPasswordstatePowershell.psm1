@@ -46,11 +46,14 @@ function Get-TervisPasswordstatePassword {
             $_ -in (Get-TervisPasswordstateCustomProperties | Select-Object -ExpandProperty Name)
         })]
         [Parameter(ParameterSetName = "PropertyMapName")]$PropertyMapName,
-        [Parameter(ParameterSetName = "NonPropertyMapName")][Switch]$AsCredential
+        [Parameter(ParameterSetName = "NonPropertyMapName")][Switch]$AsCredential,
+        $PasswordListID
     )
     $Password = if ($Guid) {
-        Find-PasswordstatePassword -GenericField10 $Guid -AsCredential:$AsCredential |
-        Select-Object -First 1    
+        #PasswordListID needed until https://www.clickstudios.com.au/community/index.php?/topic/2343-search-for-passsword-using-passwordlist-api-key/ is implemented
+        $PasswordlistIDParameter = if ($PasswordListID) {@{PasswordListID = $PasswordListID}} else {@{}}
+        Find-PasswordstatePassword -GenericField10 $Guid -AsCredential:$AsCredential @PasswordlistIDParameter |
+        Select-Object -First 1
     }
 
     if ($PropertyMapName) {
