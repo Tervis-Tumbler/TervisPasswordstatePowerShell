@@ -119,9 +119,9 @@ function Get-PasswordstateOracleDatabasePassword {
 
 function Get-PasswordstateSybaseDatabaseEntryDetails {
     param (
-        [Parameter(Mandatory)][Alias("PasswordID")]$ID
+        [Parameter(Mandatory)]$GUID
     )
-    $PasswordstateEntryDetails = Get-PasswordstatePassword -ID $ID
+    $PasswordstateEntryDetails = Get-TervisPasswordstatePassword -Guid $GUID
     
     $PasswordstateEntryDetails |
     Add-Member -MemberType AliasProperty -Name Host -Value GenericField1 -PassThru |
