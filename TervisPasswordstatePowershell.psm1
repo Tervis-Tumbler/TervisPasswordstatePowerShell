@@ -259,3 +259,24 @@ function Get-TervisPasswordStateApplicationPassword {
         }    
     }
 }
+
+function Get-TervisPasswordSateTervisDotComWildCardCertificate {
+    param (
+        [ValidateSet("pfx","crt","key")]$Type,
+        $OutPath
+    )
+    #Document IDs from the password under the \Infrastructure\Windows Server Applications Administrator password list
+    #Document IDs are not consistent accross password lists, only use non application specific password list password document IDs
+    $TypeToDocumentIDMapping = @{
+        pfx = 35
+        crt = 41
+        key = 38
+    }
+
+    Get-PasswordstateDocument -DocumentID $TypeToDocumentIDMapping.$Type -OutFile "$OutPath\certificate.$Type" -DocumentLocation password
+}
+function Get-TervisPasswordSateTervisDotComWildCardCertificatePassword {
+    Get-TervisPasswordstatePassword -Guid 49d35824-dcce-4fc1-98ff-ebb7ecc971de | 
+    Select-Object -ExpandProperty Password |
+    ConvertTo-SecureString -AsPlainText -Force
+}
