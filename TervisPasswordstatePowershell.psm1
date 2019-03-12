@@ -256,7 +256,15 @@ function Get-TervisPasswordSateTervisDotComWildCardCertificate {
     Get-PasswordstateDocument -DocumentID $TypeToDocumentIDMapping.$Type -OutFile "$OutPath\certificate.$Type" -DocumentLocation password
 }
 function Get-TervisPasswordSateTervisDotComWildCardCertificatePassword {
-    Get-TervisPasswordstatePassword -Guid 49d35824-dcce-4fc1-98ff-ebb7ecc971de | 
-    Select-Object -ExpandProperty Password |
-    ConvertTo-SecureString -AsPlainText -Force
+    param (
+        [Switch]$AsString
+    )
+    $Password = Get-TervisPasswordstatePassword -Guid 49d35824-dcce-4fc1-98ff-ebb7ecc971de | 
+    Select-Object -ExpandProperty Password
+    if (-not $AsString) {
+        $Password |
+        ConvertTo-SecureString -AsPlainText -Force
+    } else {
+        $Password
+    }
 }
