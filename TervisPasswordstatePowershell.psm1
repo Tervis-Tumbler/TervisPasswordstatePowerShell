@@ -75,7 +75,7 @@ $ModulePath\..\TervisPasswordstatePasswordCache\$(
             Add-TervisPasswordStateCustomProperty -PropertyMapName $PropertyMapName
         }
     
-        if ($Cache) {
+        if ($StoreInCache) {
             $FileInfo = [System.IO.FileInfo]$CachedPasswordCliXmlPath
             
             New-Item -ItemType Directory -Force -ErrorAction SilentlyContinue -Path $FileInfo.DirectoryName | Out-Null
