@@ -58,7 +58,7 @@ function Get-TervisPasswordstatePassword {
     $CachedPasswordCliXmlPath = @"
 $ModulePath\..\TervisPasswordstatePasswordCache\$(
     $PSBoundParameters |
-    ConvertFrom-PSBoundParameters -ExcludeProperty Cache |
+    ConvertFrom-PSBoundParameters -ExcludeProperty StoreInCache |
     ConvertTo-Hash -HashFunction MD5
 ).xml
 "@
