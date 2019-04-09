@@ -1,4 +1,10 @@
-﻿$TervisPasswordstateCustomProperties = [PSCustomObject]@{
+﻿$ModulePath = if ($PSScriptRoot) {
+	$PSScriptRoot
+} else {
+	(Get-Module -ListAvailable TervisPasswordstatePowerShell).ModuleBase
+}
+
+$TervisPasswordstateCustomProperties = [PSCustomObject]@{
     Name = "OracleDatabase"
     PropertyMap = @{    
         Host = "GenericField1"
@@ -40,25 +46,49 @@ function Get-TervisPasswordstateCustomProperties {
 function Get-TervisPasswordstatePassword {
     [CmdletBinding(DefaultParameterSetName="NonPropertyMapName")]
     param (
-        $Guid,
+        [Parameter(Mandatory)]$Guid,
 
         [ValidateScript({
             $_ -in (Get-TervisPasswordstateCustomProperties | Select-Object -ExpandProperty Name)
         })]
         [Parameter(ParameterSetName = "PropertyMapName")]$PropertyMapName,
-        [Parameter(ParameterSetName = "NonPropertyMapName")][Switch]$AsCredential
+        [Parameter(ParameterSetName = "NonPropertyMapName")][Switch]$AsCredential,
+        [Switch]$StoreInCache
     )
-    
-    $Password = if ($Guid) {
-        Find-PasswordstatePassword -GenericField10 $Guid -AsCredential:$AsCredential |
-        Select-Object -First 1
+    $CachedPasswordCliXmlPath = @"
+$ModulePath\..\TervisPasswordstatePasswordCache\$(
+    $PSBoundParameters |
+    ConvertFrom-PSBoundParameters -ExcludeProperty Cache |
+    ConvertTo-Hash -HashFunction MD5
+).xml
+"@
+    $UseCachedPassword = if ($env:UseTervisPasswordstatePasswordCache) {
+        Test-Path -Path $CachedPasswordCliXmlPath
     }
 
-    if ($PropertyMapName) {
-        $Password | Add-TervisPasswordStateCustomProperty -PropertyMapName $PropertyMapName
-    }
+    if (-not $UseCachedPassword) {
+        $Password = Find-PasswordstatePassword -GenericField10 $Guid -AsCredential:$AsCredential |
+        Select-Object -First 1
+
+        if ($PropertyMapName) {
+            $Password |
+            Add-TervisPasswordStateCustomProperty -PropertyMapName $PropertyMapName
+        }
     
-    $Password
+        if ($Cache) {
+            $FileInfo = [System.IO.FileInfo]$CachedPasswordCliXmlPath
+            
+            New-Item -ItemType Directory -Force -ErrorAction SilentlyContinue -Path $FileInfo.DirectoryName | Out-Null
+
+            $Password |
+            Export-Clixml -Path $CachedPasswordCliXmlPath
+        }
+
+        $Password
+    } elseif ($UseCachedPassword) {
+        $CachedPasswordCliXmlPath |
+        Import-Clixml
+    }
 }
 
 function Add-TervisPasswordStateCustomProperty {
@@ -267,4 +297,11 @@ function Get-TervisPasswordSateTervisDotComWildCardCertificatePassword {
     } else {
         $Password
     }
+}
+
+function Enter-TervisSSHSession {
+    param (
+        $ComputerName
+    )
+    Find-PasswordstatePassword -Search "nexus"
 }
