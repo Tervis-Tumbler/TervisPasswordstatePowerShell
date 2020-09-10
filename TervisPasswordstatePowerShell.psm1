@@ -278,9 +278,9 @@ function Get-TervisPasswordSateTervisDotComWildCardCertificate {
     #Document IDs from the password under the \Infrastructure\Windows Server Applications Administrator password list
     #Document IDs are not consistent accross password lists, only use non application specific password list password document IDs
     $TypeToDocumentIDMapping = @{
-        pfx = 35
-        crt = 41
-        key = 38
+        pfx = 83 # 2020 wildcard cert pfx
+        crt = 85 # 2020 wildcard cert crt
+        key = 84 # 2020 wildcard cert key
     }
 
     Get-PasswordstateDocument -DocumentID $TypeToDocumentIDMapping.$Type -OutFile "$OutPath\certificate.$Type" -DocumentLocation password
@@ -289,7 +289,7 @@ function Get-TervisPasswordSateTervisDotComWildCardCertificatePassword {
     param (
         [Switch]$AsString
     )
-    $Password = Get-TervisPasswordstatePassword -Guid 49d35824-dcce-4fc1-98ff-ebb7ecc971de | 
+    $Password = Get-TervisPasswordstatePassword -Guid "02dae3ad-8f21-427f-8a35-b940797da51e" | # 2020 wildcard cert GUID
     Select-Object -ExpandProperty Password
     if (-not $AsString) {
         $Password |
