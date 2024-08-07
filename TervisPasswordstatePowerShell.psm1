@@ -289,7 +289,7 @@ function Get-TervisPasswordSateTervisDotComWildCardCertificatePassword {
     param (
         [Switch]$AsString
     )
-    $Password = Get-TervisPasswordstatePassword -Guid "02dae3ad-8f21-427f-8a35-b940797da51e" | # 2020 wildcard cert GUID
+    $Password = Get-TervisPasswordstatePassword -Guid "c8fe0349-11b0-41b1-8182-419a0d06d188" | # 2023 wildcard cert GUID REISSUE
     Select-Object -ExpandProperty Password
     if (-not $AsString) {
         $Password |
